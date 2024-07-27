@@ -13,6 +13,11 @@ on:
         required: true
         type: string
         default: "gcc"
+      _upload_artifact:
+        description: 'Upload tarball as GitHub artifact'
+        required: true
+        default: 'false'
+        type: 'boolean'
 
 env:
   _waydroid: "true"
@@ -55,10 +60,25 @@ jobs:
 
       - name: Rename kernel config
         run: mv kernelconfig.new kernelconfig.debian.${{ env._cpusched }}.txt
+      - name: Create release name and release tag
+        run: |
+          release_tag=$(basename "$(ls "${{ github.workspace }}/DEBS/linux-image*.deb")" | awk -F'[_-]' '{print $3"-"$4"-"$5}')
+          release_name=${release_tag//-/ }
+          echo "RELEASE_NAME=release_name" >> $GITHUB_ENV
+          echo "RELEASE_TAG=release_tag" >> $GITHUB_ENV
 
       - uses: actions/upload-artifact@v4
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs._upload_artifact == 'true'      
         with:
           name: debian-kernel-packages-${{ env._cpusched }}
           path: |
+            ${{ github.workspace }}/DEBS/*.deb
+            ${{ github.workspace }}/kernelconfig*.txt
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ env.RELEASE_NAME }}
+          tag_name: ${{ env.KERNEL_TAG}}
+          files: |
             ${{ github.workspace }}/DEBS/*.deb
             ${{ github.workspace }}/kernelconfig*.txt
