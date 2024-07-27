@@ -43,6 +43,9 @@ jobs:
     steps:
       - name: Checkout linux-tkg
         uses: actions/checkout@v4
+        with:
+          repository: Frogging-Family/linux-tkg
+          ref: master
 
       - name: Install deps and compile kernel
         run: yes '' | ./install.sh install
