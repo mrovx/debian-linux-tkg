@@ -1,0 +1,61 @@
+name: Build Debian Kernel
+
+on:
+  workflow_call:
+    inputs:
+      _cpusched:
+        required: true
+        type: string
+      _processor_opt:
+        required: true
+        type: string
+      _compiler:
+        required: true
+        type: string
+        default: "gcc"
+
+env:
+  _waydroid: "true"
+  _processor_opt: "generic"
+  _distro: "Debian"  
+  _git_mirror: "github.com"
+  _logging_use_script: "no"
+  _install_after_building: "no"
+  _debugdisable: "true"
+  _noccache: "true"
+  _STRIP: "true"
+  _kernel_on_diet: "true"
+  _kernel_work_folder: "/tmp"
+  _kernel_source_folder: "/tmp"
+  # Disable modprobed-db
+  _modprobeddb: "false"
+  _llvm_opt: "-g -O3 -feliminate-unused-debug-types -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -Wformat -Wformat-security -m64 -fasynchronous-unwind-tables -Wp,-D_REENTRANT -ftree-loop-distribute-patterns -Wl,-z,now -Wl,-z,relro -fno-semantic-interposition -ffat-lto-objects -fno-trapping-math -Wl,-sort-common -Wl,--enable-new-dtags"
+
+jobs:
+  build-kernel:
+    env:
+      _cpusched: ${{ inputs._cpusched }}
+      _processor_opt: ${{ inputs._processor_opt }}
+      _compiler: ${{ inputs._compiler }}
+
+    runs-on: ubuntu-latest  # Consider using a Debian runner for better compatibility
+
+    steps:
+      - name: Checkout linux-tkg
+        uses: actions/checkout@v4
+
+      - name: Install deps and compile kernel
+        run: yes '' | ./install.sh install
+
+      - name: Cleanup useless DEB files
+        run: rm -rf DEBS/*dbg*.deb DEBS/*libc-dev*.deb  # Clean up similar to Ubuntu
+
+      - name: Rename kernel config
+        run: mv kernelconfig.new kernelconfig.debian.${{ env._cpusched }}.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: debian-kernel-packages-${{ env._cpusched }}
+          path: |
+            ${{ github.workspace }}/DEBS/*.deb
+            ${{ github.workspace }}/kernelconfig*.txt
