@@ -55,14 +55,13 @@ jobs:
           repository: Frogging-Family/linux-tkg
           ref: master
           path: tkg
-          
-      - name: Enter directory
-        run: pushd tkg
         
       - name: Install deps and compile kernel
+        working-directory: "tkg"
         run: yes '' | ./install.sh install
 
       - name: Cleanup useless DEB files
+        working-directory: "tkg"
         run: rm -rf DEBS/*dbg*.deb DEBS/*libc-dev*.deb  # Clean up similar to Ubuntu
 
       - name: Rename kernel config
