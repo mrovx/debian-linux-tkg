@@ -64,8 +64,8 @@ jobs:
         run: |
           release_tag=$(basename "$(ls "${{ github.workspace }}/DEBS/linux-image*.deb")" | awk -F'[_-]' '{print $3"-"$4"-"$5}')
           release_name=${release_tag//-/ }
-          echo "RELEASE_NAME=release_name" >> $GITHUB_ENV
-          echo "RELEASE_TAG=release_tag" >> $GITHUB_ENV
+          echo "RELEASE_NAME=$release_name" >> $GITHUB_ENV
+          echo "RELEASE_TAG=$release_tag" >> $GITHUB_ENV
 
       - uses: actions/upload-artifact@v4
         if: github.event_name == 'workflow_dispatch' && github.event.inputs._upload_artifact == 'true'      
