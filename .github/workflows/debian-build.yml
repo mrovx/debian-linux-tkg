@@ -49,6 +49,9 @@ jobs:
     runs-on: ubuntu-latest  # Consider using a Debian runner for better compatibility
 
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        
       - name: Checkout linux-tkg
         uses: actions/checkout@v4
         with:
