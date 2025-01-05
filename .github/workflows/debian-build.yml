@@ -68,6 +68,7 @@ jobs:
         run: rm -rf DEBS/*dbg*.deb DEBS/*libc-dev*.deb  # Clean up similar to Ubuntu
 
       - name: Rename kernel config
+        working-directory: "tkg"
         run: mv kernelconfig.new kernelconfig.debian.${{ env._cpusched }}.txt
       - name: Create release name and release tag
         run: |
