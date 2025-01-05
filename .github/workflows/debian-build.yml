@@ -71,8 +71,9 @@ jobs:
         working-directory: "tkg"
         run: mv kernelconfig.new kernelconfig.debian.${{ env._cpusched }}.txt
       - name: Create release name and release tag
+        working-directory: "tkg"
         run: |
-          release_tag=$(basename "$(ls "${{ github.workspace }}/tkg/DEBS/linux-image*.deb")" | awk -F'[_-]' '{print $3"-"$4"-"$5}')
+          release_tag=$(basename "$(ls DEBS/linux-image*.deb)" | awk -F'[_-]' '{print $3"-"$4"-"$5}')
           release_name=${release_tag//-/ }
           echo "RELEASE_NAME=$release_name" >> $GITHUB_ENV
           echo "RELEASE_TAG=$release_tag" >> $GITHUB_ENV
