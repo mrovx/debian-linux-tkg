@@ -15,6 +15,14 @@ on:
         required: true
         type: string
         default: "gcc"
+      _tcp_cong_alg:
+        required: false
+        type: string
+        default: "bbr"
+      _cflags:
+        required: false
+        type: string
+        default: "-g -O3 -feliminate-unused-debug-types -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -Wformat -Wformat-security -m64 -fasynchronous-unwind-tables -Wp,-D_REENTRANT -ftree-loop-distribute-patterns -Wl,-z,now -Wl,-z,relro -fno-semantic-interposition -ffat-lto-objects -fno-trapping-math -Wl,-sort-common -Wl,--enable-new-dtags"
       _upload_artifact:
         description: 'Upload tarball as GitHub artifact'
         required: true
@@ -36,8 +44,8 @@ env:
   _kernel_source_folder: "/tmp"
   _modprobeddb: "true"
   _modprobeddb_db_path: "${{ github.workspace }}/modprobed.db"
-  _tcp_cong_alg: "bbr"
-  CFLAGS: "-g -O3 -feliminate-unused-debug-types -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -Wformat -Wformat-security -m64 -fasynchronous-unwind-tables -Wp,-D_REENTRANT -ftree-loop-distribute-patterns -Wl,-z,now -Wl,-z,relro -fno-semantic-interposition -ffat-lto-objects -fno-trapping-math -Wl,-sort-common -Wl,--enable-new-dtags"
+  
+  
 
 jobs:
   build-kernel:
@@ -45,6 +53,8 @@ jobs:
       _cpusched: ${{ inputs._cpusched }}
       _processor_opt: ${{ inputs._processor_opt }}
       _compiler: ${{ inputs._compiler }}
+      CFLAGS: ${{ inputs._cflags }}
+      _tcp_cong_alg: ${{ inputs._tcp_cong_alg }}
 
     runs-on: ubuntu-latest  # Consider using a Debian runner for better compatibility
 
@@ -89,7 +99,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           name: ${{ env.RELEASE_NAME }}
-          tag_name: ${{ env.KERNEL_TAG}}
+          tag_name: ${{ env.KERNEL_TAG }}
           files: |
             ${{ github.workspace }}/tkg/DEBS/*.deb
             ${{ github.workspace }}/tkg/kernelconfig*.txt
